@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  studentdb:
+    image: microsoft/mssql-server-linux
+
+  course.api:
+    image: ${DOCKER_REGISTRY-}courseapi
+    build:
+      context: .
+      dockerfile: Services/Course/Course.API/Dockerfile
+
+  student.api:
+    image: ${DOCKER_REGISTRY-}studentapi
+    build:
+      context: .
+      dockerfile: Services/Student/Student.API/Dockerfile
+
+
+  studentcourse.web:
+    image: ${DOCKER_REGISTRY-}studentcourseweb
+    build:
+      context: .
+      dockerfile: Web/StudentCourse.Web/Dockerfile
+
+
+  studentcourseapigateway:
+    image: ${DOCKER_REGISTRY-}studentcourseapigateway
+    build:
+      context: .
+      dockerfile: Blocks/ApiGateWay/StudentCourseAPIGateWay/Dockerfile
+

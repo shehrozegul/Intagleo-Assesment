@@ -1,0 +1,70 @@
+version: '3.4'
+
+services:
+  studentdb:
+    container_name: studentdb
+    ports:
+       - "1433:1433"
+    build:
+      context: .
+      dockerfile: Blocks/Database/Dockerfile
+    environment:
+       SA_PASSWORD: "pass@1234"
+       ACCEPT_EULA: "Y"
+       MSSQL_TCP_PORT: "1433"
+    volumes:
+    - studentdbsqldata:/var/opt/mssql
+
+  course.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5002:80"
+    depends_on:
+      - studentdb
+
+  student.api:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5003:80"
+    depends_on:
+      - studentdb
+
+  #studentcourse.app:
+  #  image: studentcourseapp
+  #  container_name: studentcourse.app
+  #  build:
+  #    context: .
+  #    dockerfile: Web/StudentCourse.Web/ClientApp/Dockerfile
+  #  ports:
+  #    - "4200:4200"
+  #    - "49156:49153"
+  #  volumes:
+  #  - studentapp:./Web/StudentCourse.Web/ClientApp:/app
+
+  studentcourse.web:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - NG_DEV_SERVER=http://angular.app:4200
+    build:
+        args:
+        - skip_client_build=true
+    ports:
+      - "5001:80"
+    depends_on:
+      - studentcourseapigateway
+
+  studentcourseapigateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5004:80"
+    depends_on:
+      - student.api
+      - course.api
+
+volumes:
+  studentapp:
+  studentdbsqldata:
+
